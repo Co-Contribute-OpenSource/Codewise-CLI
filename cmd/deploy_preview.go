@@ -53,7 +53,7 @@ var deployPreviewCmd = &cobra.Command{
 
 		defer func() {
 			if previewKeep {
-				LogSuccess("preview environment kept: " + name)
+				LogSuccess("preview environment kept: %s", name)
 				return
 			}
 			// best-effort cleanup
@@ -68,7 +68,7 @@ var deployPreviewCmd = &cobra.Command{
 			return LogErrorf("preview deploy failed: %v", err)
 		}
 
-		LogSuccess("preview deployment complete: " + name)
+		LogSuccess("preview deployment complete: %s", name)
 		return nil
 	},
 }
