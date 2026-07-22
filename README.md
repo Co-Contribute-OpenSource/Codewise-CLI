@@ -9,6 +9,10 @@
 
 Codewise is a DevOps-oriented command-line utility for scaffolding, packaging, and deploying containerized applications using a consistent workflow. It enables developers and platform engineers to move from source code to running workloads using Docker, Kubernetes, and Helm without switching tools or remembering boilerplate syntax.
 
+<div align="center">
+  <strong><a href="https://aryansharma9917.github.io/Codewise-CLI/">Read the Codewise CLI Documentation</a></strong>
+</div>
+
 ---
 
 ## Features
@@ -73,7 +77,8 @@ go run . <command> [subcommand] [flags]
 - [Testing runbook](TESTING_RUNBOOK.md) for copy-paste test and smoke commands
 - [Project overview](PROJECT_OVERVIEW.md) for architecture, connectivity, build flow, and tech stack
 - [Deployment maturity ladder](DEPLOYMENT_MATURITY.md) for local -> staging -> production readiness criteria
-- [Documentation website](website/index.md) for the searchable guide, command reference, workflows, and troubleshooting
+- [Documentation website](https://aryansharma9917.github.io/Codewise-CLI/) for the searchable guide, complete command reference, workflows, and troubleshooting
+- [Documentation source](website/index.md) for contributing changes to the website
 
 Run the documentation website locally:
 
