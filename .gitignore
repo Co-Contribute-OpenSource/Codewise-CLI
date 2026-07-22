@@ -50,3 +50,4 @@ myappcodewise-cli
 website/node_modules/
 website/.vitepress/cache/
 website/.vitepress/dist/
+website/.vitepress/.temp/
