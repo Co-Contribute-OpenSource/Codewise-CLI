@@ -41,6 +41,9 @@ func init() {
 
 func createEnvInteractive(name string) error {
 	cfg, _ := config.ReadConfig()
+	if cfg == nil {
+		cfg = &config.Config{}
+	}
 
 	defaultNs := fallback(cfg.Defaults.Namespace, name)
 	defaultCtx := fallback(cfg.Defaults.Context, "")

@@ -28,7 +28,8 @@ export default defineConfig({
             { text: 'Installation', link: '/guide/installation' },
             { text: 'Quick start', link: '/guide/quick-start' },
             { text: 'Configuration', link: '/guide/configuration' },
-            { text: 'How Codewise works', link: '/guide/architecture' }
+            { text: 'How Codewise works', link: '/guide/architecture' },
+            { text: 'Production readiness', link: '/guide/production-readiness' }
           ]
         }
       ],

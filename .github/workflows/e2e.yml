@@ -1,0 +1,45 @@
+name: End-to-end
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  kind:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.25.0'
+          cache: true
+      - name: Install kind
+        run: go install sigs.k8s.io/kind@v0.32.0
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.19.0
+      - name: Create disposable Kubernetes cluster
+        run: kind create cluster --name codewise-e2e --wait 120s
+      - name: Run Docker, kubectl, Helm, and GitOps paths
+        run: bash tests/e2e/kind.sh
+      - name: Export cluster diagnostics
+        if: failure()
+        run: kind export logs ./kind-logs --name codewise-e2e
+      - name: Upload cluster diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kind-logs
+          path: kind-logs

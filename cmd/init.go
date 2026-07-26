@@ -14,8 +14,8 @@ var (
 var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Scaffold a new DevOps-ready project",
-	Run: func(cmd *cobra.Command, args []string) {
-		generator.ScaffoldProject(projectName, withDocker, withDeployment)
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return generator.ScaffoldProject(projectName, withDocker, withDeployment)
 	},
 }
 

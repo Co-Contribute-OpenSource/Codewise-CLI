@@ -2,12 +2,12 @@ package deploy
 
 import (
 	"fmt"
-	"os/exec"
+	"strings"
 
 	"github.com/aryansharma9917/codewise-cli/pkg/env"
 )
 
-func namespaceExists(namespace string, context string) bool {
+func namespaceExists(namespace string, context string) (bool, error) {
 
 	args := []string{"get", "ns", namespace}
 
@@ -15,13 +15,15 @@ func namespaceExists(namespace string, context string) bool {
 		args = append(args, "--context", context)
 	}
 
-	cmd := exec.Command("kubectl", args...)
-
-	if err := cmd.Run(); err != nil {
-		return false
+	output, err := commandRunner.CombinedOutput("kubectl", args...)
+	if err == nil {
+		return true, nil
 	}
-
-	return true
+	if strings.Contains(strings.ToLower(string(output)), "notfound") ||
+		strings.Contains(strings.ToLower(string(output)), "not found") {
+		return false, nil
+	}
+	return false, outputError("failed to check Kubernetes namespace", output, err)
 }
 
 func createNamespace(namespace string, context string) error {
@@ -32,11 +34,9 @@ func createNamespace(namespace string, context string) error {
 		args = append(args, "--context", context)
 	}
 
-	cmd := exec.Command("kubectl", args...)
-
-	output, err := cmd.CombinedOutput()
+	output, err := commandRunner.CombinedOutput("kubectl", args...)
 	if err != nil {
-		return fmt.Errorf("failed to create namespace: %s", string(output))
+		return outputError("failed to create namespace", output, err)
 	}
 
 	return nil
@@ -49,7 +49,11 @@ func EnsureNamespace(environment *env.Env) error {
 
 	fmt.Printf("Checking namespace \"%s\"...\n", ns)
 
-	if namespaceExists(ns, ctx) {
+	exists, err := namespaceExists(ns, ctx)
+	if err != nil {
+		return err
+	}
+	if exists {
 		fmt.Println("Namespace exists")
 		return nil
 	}

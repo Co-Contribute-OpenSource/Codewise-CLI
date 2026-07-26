@@ -3,6 +3,7 @@ package env
 type K8sConfig struct {
 	Namespace string `yaml:"namespace"`
 	Context   string `yaml:"context"`
+	Strategy  string `yaml:"strategy,omitempty"`
 }
 
 type HelmConfig struct {

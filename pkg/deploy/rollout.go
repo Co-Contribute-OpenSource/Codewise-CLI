@@ -2,7 +2,7 @@ package deploy
 
 import (
 	"fmt"
-	"os/exec"
+	"os"
 	"strings"
 	"time"
 
@@ -24,10 +24,9 @@ func getDeployments(namespace string, context string) ([]string, error) {
 		args = append(args, "--context", context)
 	}
 
-	cmd := exec.Command("kubectl", args...)
-	out, err := cmd.Output()
+	out, err := commandRunner.Output("kubectl", args...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to list deployments")
+		return nil, fmt.Errorf("failed to list deployments: %w", err)
 	}
 
 	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
@@ -57,11 +56,7 @@ func waitForDeployment(deployment string, namespace string, context string) erro
 		args = append(args, "--context", context)
 	}
 
-	cmd := exec.Command("kubectl", args...)
-	cmd.Stdout = nil
-	cmd.Stderr = nil
-
-	return cmd.Run()
+	return commandRunner.Run("kubectl", args, nil, os.Stdout, os.Stderr)
 }
 
 func MonitorRollout(environment *env.Env) error {

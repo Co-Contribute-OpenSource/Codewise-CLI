@@ -2,7 +2,6 @@ package deploy
 
 import (
 	"fmt"
-	"os/exec"
 	"strings"
 
 	"github.com/aryansharma9917/codewise-cli/pkg/env"
@@ -23,9 +22,7 @@ func getPods(namespace string, context string) ([]string, error) {
 		args = append(args, "--context", context)
 	}
 
-	cmd := exec.Command("kubectl", args...)
-
-	out, err := cmd.Output()
+	out, err := commandRunner.Output("kubectl", args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list pods")
 	}
@@ -57,8 +54,7 @@ func describePod(pod string, namespace string, context string) {
 		args = append(args, "--context", context)
 	}
 
-	cmd := exec.Command("kubectl", args...)
-	out, err := cmd.CombinedOutput()
+	out, err := commandRunner.CombinedOutput("kubectl", args...)
 
 	if err != nil {
 		fmt.Println("failed to describe pod")

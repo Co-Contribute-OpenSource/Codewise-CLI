@@ -17,6 +17,9 @@ type CreateOptions struct {
 func CreateEnv(name string, opts CreateOptions) error {
 	if opts.Interactive {
 		cfg, _ := config.ReadConfig()
+		if cfg == nil {
+			cfg = &config.Config{}
+		}
 
 		defaultNs := inferOrDefault(cfg.Defaults.Namespace, name)
 		defaultCtx := inferOrDefault(cfg.Defaults.Context, "")
@@ -101,6 +104,9 @@ func createSilent(name string) error {
 
 	// global config support
 	cfg, _ := config.ReadConfig()
+	if cfg == nil {
+		cfg = &config.Config{}
+	}
 
 	k8s := K8sConfig{
 		Namespace: inferOrDefault(cfg.Defaults.Namespace, name),

@@ -32,3 +32,19 @@ codewise encode -i encoded.txt -o decoded.txt --base64 --decode
 ```
 
 TOML and XML conversions are inferred from input and output file extensions.
+
+## Key-value text to JSON
+
+Convert `.env`-style `KEY=value` text, including values containing additional
+equals signs:
+
+```bash
+codewise encode kvtj --file .env --output env.json
+codewise encode kvtj --file .env --print
+```
+
+| Flag | Short | Description |
+| --- | --- | --- |
+| `--file` | `-f` | Input key-value file (required) |
+| `--output` | `-o` | Output path; defaults to `output.json` |
+| `--print` | `-p` | Print JSON instead of writing a file |

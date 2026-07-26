@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/aryansharma9917/codewise-cli/pkg/encoder"
@@ -23,7 +22,7 @@ var (
 var encodeCmd = &cobra.Command{
 	Use:   "encode",
 	Short: "Convert between formats (YAML ⇄ JSON, base64, .env, TOML ⇄ JSON, XML ⇄ JSON)",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 
 		// Interactive prompts if missing
 		if inputFile == "" {
@@ -36,7 +35,7 @@ var encodeCmd = &cobra.Command{
 		// Confirm overwrite if needed
 		if !force && !prompt.ConfirmOverwrite(outputFile) {
 			fmt.Println("❌ Operation cancelled by user")
-			return
+			return nil
 		}
 
 		var err error
@@ -72,8 +71,7 @@ var encodeCmd = &cobra.Command{
 		}
 
 		if err != nil {
-			fmt.Println("❌ Error:", err)
-			os.Exit(1)
+			return fmt.Errorf("encode: %w", err)
 		}
 
 		// Success messages
@@ -97,11 +95,13 @@ var encodeCmd = &cobra.Command{
 		default:
 			fmt.Println("✅ YAML converted to JSON successfully.")
 		}
+		return nil
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(encodeCmd)
+	encodeCmd.AddCommand(encoder.KeyValueToJSONCommand())
 
 	encodeCmd.Flags().StringVarP(&inputFile, "input", "i", "", "Input file path")
 	encodeCmd.Flags().StringVarP(&outputFile, "output", "o", "", "Output file path")

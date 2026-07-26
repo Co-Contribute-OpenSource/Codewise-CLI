@@ -9,6 +9,10 @@
 
 Codewise is a DevOps-oriented command-line utility for scaffolding, packaging, and deploying containerized applications using a consistent workflow. It enables developers and platform engineers to move from source code to running workloads using Docker, Kubernetes, and Helm without switching tools or remembering boilerplate syntax.
 
+> **Status:** Beta. Local workflows and disposable-cluster validation are
+> supported; review the [production-readiness guide](https://aryansharma9917.github.io/Codewise-CLI/guide/production-readiness)
+> before using Codewise against important workloads.
+
 <div align="center">
   <strong><a href="https://aryansharma9917.github.io/Codewise-CLI/">Read the Codewise CLI Documentation</a></strong>
 </div>
@@ -78,6 +82,7 @@ go run . <command> [subcommand] [flags]
 - [Project overview](PROJECT_OVERVIEW.md) for architecture, connectivity, build flow, and tech stack
 - [Deployment maturity ladder](DEPLOYMENT_MATURITY.md) for local -> staging -> production readiness criteria
 - [Documentation website](https://aryansharma9917.github.io/Codewise-CLI/) for the searchable guide, complete command reference, workflows, and troubleshooting
+- [Production-readiness guide](https://aryansharma9917.github.io/Codewise-CLI/guide/production-readiness) for prerequisites, compatibility, upgrades, failure recovery, and rollback
 - [Documentation source](website/index.md) for contributing changes to the website
 
 Run the documentation website locally:
@@ -256,15 +261,14 @@ codewise helm init
 
 Planned enhancements include:
 
-* Helm install/upgrade operations
 * Helm push to OCI registries
-* GitOps integration (ArgoCD / Flux)
-* CI/CD pipeline generation (GitHub Actions)
+* Flux support alongside the current Argo CD workflow
 * Image scanning (Trivy/Syft plugins)
 * Terraform infrastructure modules
 * Local cluster provisioning (kind/k3d/minikube)
 * Plugin system for custom extensions
 * Global binary installation via Homebrew/Scoop
+* Broader macOS and Windows end-to-end coverage
 
 ---
 

@@ -3,10 +3,10 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/aryansharma9917/codewise-cli/pkg/deploy"
+	codewisedocker "github.com/aryansharma9917/codewise-cli/pkg/docker"
 	"github.com/aryansharma9917/codewise-cli/pkg/env"
 	"github.com/spf13/cobra"
 )
@@ -33,14 +33,14 @@ var deployPreviewCmd = &cobra.Command{
 		gitops := env.GitOpsConfig{Repo: "", Path: "", Branch: "main"}
 		values := env.ValuesConfig{}
 		if previewImage != "" {
-			// allow image specified as repo:tag or tag
-			if strings.Contains(previewImage, ":") {
-				parts := strings.SplitN(previewImage, ":", 2)
-				values.Image.Repository = parts[0]
-				values.Image.Tag = parts[1]
-			} else {
-				values.Image.Repository = "codewise"
-				values.Image.Tag = previewImage
+			ref, err := codewisedocker.ParseImageReference(previewImage)
+			if err != nil {
+				return err
+			}
+			values.Image.Repository = ref.RepositoryAndDigest()
+			values.Image.Tag = ref.Tag
+			if values.Image.Tag == "" && ref.Digest == "" {
+				values.Image.Tag = "latest"
 			}
 		} else {
 			values.Image.Repository = "codewise"

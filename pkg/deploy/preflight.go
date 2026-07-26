@@ -2,16 +2,13 @@ package deploy
 
 import (
 	"fmt"
-	"os/exec"
 
 	"github.com/aryansharma9917/codewise-cli/pkg/env"
 )
 
 func runCheck(name string, args ...string) error {
 
-	cmd := exec.Command(name, args...)
-
-	if err := cmd.Run(); err != nil {
+	if err := commandRunner.Run(name, args, nil, nil, nil); err != nil {
 		return err
 	}
 

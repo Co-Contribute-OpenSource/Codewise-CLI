@@ -2,7 +2,7 @@ package deploy
 
 import (
 	"fmt"
-	"os/exec"
+	"os"
 	"strings"
 )
 
@@ -30,10 +30,9 @@ func Logs(envName string, follow bool) error {
 		args = append(args, "--context", ctx)
 	}
 
-	cmd := exec.Command("kubectl", args...)
-	out, err := cmd.Output()
+	out, err := commandRunner.Output("kubectl", args...)
 	if err != nil {
-		return fmt.Errorf("failed to fetch pods")
+		return fmt.Errorf("failed to fetch pods: %w", err)
 	}
 
 	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
@@ -62,9 +61,5 @@ func Logs(envName string, follow bool) error {
 		logArgs = append(logArgs, "--context", ctx)
 	}
 
-	logCmd := exec.Command("kubectl", logArgs...)
-	logCmd.Stdout = nil
-	logCmd.Stderr = nil
-
-	return logCmd.Run()
+	return commandRunner.Run("kubectl", logArgs, nil, os.Stdout, os.Stderr)
 }

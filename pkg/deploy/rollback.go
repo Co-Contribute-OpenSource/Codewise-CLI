@@ -2,7 +2,7 @@ package deploy
 
 import (
 	"fmt"
-	"os/exec"
+	"os"
 )
 
 func Rollback(envName string, revision int) error {
@@ -15,6 +15,10 @@ func Rollback(envName string, revision int) error {
 	ns := environment.K8s.Namespace
 	ctx := environment.K8s.Context
 	release := environment.Helm.Release
+	strategy := ResolveStrategy(environment)
+	if strategy != StrategyHelm {
+		return fmt.Errorf("automatic rollback is only supported for Helm environments (resolved strategy: %s); revert desired state in Git for GitOps or apply a previous manifest for kubectl", strategy)
+	}
 
 	fmt.Println("Starting rollback...")
 	fmt.Println("Environment:", envName)
@@ -34,12 +38,8 @@ func Rollback(envName string, revision int) error {
 		args = append(args, "--kube-context", ctx)
 	}
 
-	cmd := exec.Command("helm", args...)
-	cmd.Stdout = nil
-	cmd.Stderr = nil
-
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("rollback failed")
+	if err := commandRunner.Run("helm", args, nil, os.Stdout, os.Stderr); err != nil {
+		return fmt.Errorf("Helm rollback failed: %w", err)
 	}
 
 	fmt.Println("Rollback executed successfully.")

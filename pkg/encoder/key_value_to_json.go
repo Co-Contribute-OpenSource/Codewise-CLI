@@ -16,18 +16,20 @@ var (
 )
 
 // textToJsonCmd represents the aa command
-var keyValueToJsonCmd = &cobra.Command{
-	Use:   "KVTJ [flags]",
+var keyValueToJSONCmd = &cobra.Command{
+	Use:   "kvtj [flags]",
 	Short: "Converts Key-Value (text) to JSON.",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 
 		// Read the input file
 		content, err := os.ReadFile(inputTextFile)
-		checkNilErr(err)
+		if err != nil {
+			return fmt.Errorf("read key-value file: %w", err)
+		}
 
 		// Check if the input file is empty
 		if len(content) == 0 {
-			checkNilErr(err)
+			return fmt.Errorf("input file is empty")
 		}
 
 		// Convert the input file to JSON
@@ -74,7 +76,7 @@ var keyValueToJsonCmd = &cobra.Command{
 		// Print the output to the console
 		if printOutput {
 			fmt.Println(string(jsonString))
-			return
+			return nil
 		}
 
 		if outputJsonFile1 == "" {
@@ -82,31 +84,26 @@ var keyValueToJsonCmd = &cobra.Command{
 		}
 
 		// Write the output file
-		file, err := os.Create(outputJsonFile1)
-		checkNilErr(err)
-
-		defer file.Close()
-
-		_, err = file.WriteString(string(jsonString))
-		checkNilErr(err)
+		if err := os.WriteFile(outputJsonFile1, jsonString, 0644); err != nil {
+			return fmt.Errorf("write JSON output: %w", err)
+		}
 
 		fmt.Println("Operation completed successfully. Check the", outputJsonFile1, "file.")
+		return nil
 	},
 }
 
 func init() {
 
 	// Flags for the TTJ command
-	keyValueToJsonCmd.Flags().StringVarP(&inputTextFile, "file", "f", "", "Input the text file name. Eg: keys.txt or .env")
-	err := keyValueToJsonCmd.MarkFlagRequired("file")
-	checkNilErr(err)
+	keyValueToJSONCmd.Flags().StringVarP(&inputTextFile, "file", "f", "", "Input the text file name. Eg: keys.txt or .env")
+	_ = keyValueToJSONCmd.MarkFlagRequired("file")
 
-	keyValueToJsonCmd.Flags().StringVarP(&outputJsonFile1, "output", "o", "", "Output JSON file name (default is output.json)")
-	keyValueToJsonCmd.Flags().BoolVarP(&printOutput, "print", "p", false, "Print the output to the console")
+	keyValueToJSONCmd.Flags().StringVarP(&outputJsonFile1, "output", "o", "", "Output JSON file name (default is output.json)")
+	keyValueToJSONCmd.Flags().BoolVarP(&printOutput, "print", "p", false, "Print the output to the console")
 }
 
-func checkNilErr(err error) {
-	if err != nil {
-		panic(err)
-	}
+// KeyValueToJSONCommand exposes the converter as an encode subcommand.
+func KeyValueToJSONCommand() *cobra.Command {
+	return keyValueToJSONCmd
 }

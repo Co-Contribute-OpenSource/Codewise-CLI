@@ -3,6 +3,7 @@ package deploy
 import (
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/aryansharma9917/codewise-cli/pkg/env"
 )
@@ -16,6 +17,14 @@ const (
 )
 
 func ResolveStrategy(e *env.Env) Strategy {
+	switch Strategy(strings.ToLower(e.K8s.Strategy)) {
+	case StrategyHelm:
+		return StrategyHelm
+	case StrategyKubectl:
+		return StrategyKubectl
+	case StrategyGitOps:
+		return StrategyGitOps
+	}
 
 	// check if gitops repo is configured
 	if e.GitOps.Repo != "" {

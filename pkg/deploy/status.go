@@ -2,7 +2,6 @@ package deploy
 
 import (
 	"fmt"
-	"os/exec"
 	"strings"
 )
 
@@ -16,32 +15,39 @@ func Status(envName string) error {
 	ns := environment.K8s.Namespace
 	ctx := environment.K8s.Context
 	release := environment.Helm.Release
+	strategy := ResolveStrategy(environment)
 
 	fmt.Println("Deployment Status")
 	fmt.Println("-----------------")
 	fmt.Println("Environment:", envName)
 	fmt.Println("Namespace:", ns)
-	fmt.Println("Release:", release)
+	fmt.Println("Strategy:", strategy)
 	fmt.Println()
 
-	// Helm Status
-	args := []string{
-		"status",
-		release,
-		"-n",
-		ns,
-	}
-
-	if ctx != "" {
-		args = append(args, "--kube-context", ctx)
-	}
-
-	cmd := exec.Command("helm", args...)
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		fmt.Println("Helm status not available")
-	} else {
+	switch strategy {
+	case StrategyHelm:
+		fmt.Println("Release:", release)
+		args := []string{"status", release, "-n", ns}
+		if ctx != "" {
+			args = append(args, "--kube-context", ctx)
+		}
+		out, err := commandRunner.CombinedOutput("helm", args...)
+		if err != nil {
+			return outputError("failed to fetch Helm release status", out, err)
+		}
 		fmt.Println(string(out))
+	case StrategyGitOps:
+		args := []string{"get", "application", environment.Name, "-n", "argocd", "-o", "wide"}
+		if ctx != "" {
+			args = append(args, "--context", ctx)
+		}
+		out, err := commandRunner.CombinedOutput("kubectl", args...)
+		if err != nil {
+			return outputError("failed to fetch Argo CD Application status", out, err)
+		}
+		fmt.Println(string(out))
+	case StrategyKubectl:
+		fmt.Println("kubectl-managed resources do not have revision metadata; showing live workloads.")
 	}
 
 	// Pods
@@ -59,13 +65,11 @@ func Status(envName string) error {
 		podArgs = append(podArgs, "--context", ctx)
 	}
 
-	podCmd := exec.Command("kubectl", podArgs...)
-	podsOut, err := podCmd.CombinedOutput()
+	podsOut, err := commandRunner.CombinedOutput("kubectl", podArgs...)
 	if err != nil {
-		fmt.Println("Unable to fetch pods")
-	} else {
-		fmt.Println(strings.TrimSpace(string(podsOut)))
+		return outputError("failed to fetch pods", podsOut, err)
 	}
+	fmt.Println(strings.TrimSpace(string(podsOut)))
 
 	return nil
 }

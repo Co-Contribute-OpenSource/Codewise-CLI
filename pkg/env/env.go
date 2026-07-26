@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -11,6 +13,20 @@ import (
 const (
 	codewiseHomeEnv = "CODEWISE_HOME"
 )
+
+var environmentNamePattern = regexp.MustCompile(`^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$`)
+
+// ValidateName ensures an environment name is both predictable and safe to
+// use as a directory and as a default Helm release name.
+func ValidateName(name string) error {
+	if !environmentNamePattern.MatchString(name) || name == "." || name == ".." {
+		return fmt.Errorf("invalid environment name %q: use a 1-63 character DNS label containing lowercase letters, numbers, or hyphens; start and end with a letter or number", name)
+	}
+	if strings.ContainsAny(name, `/\`) {
+		return fmt.Errorf("invalid environment name %q: path separators are not allowed", name)
+	}
+	return nil
+}
 
 /////////////////////////////////////////////////////////
 // PATH HELPERS
@@ -31,13 +47,21 @@ func baseEnvPath() (string, error) {
 }
 
 func envDir(name string) (string, error) {
+	if err := ValidateName(name); err != nil {
+		return "", err
+	}
 
 	base, err := baseEnvPath()
 	if err != nil {
 		return "", err
 	}
 
-	return filepath.Join(base, name), nil
+	dir := filepath.Join(base, name)
+	relative, err := filepath.Rel(base, dir)
+	if err != nil || relative == ".." || strings.HasPrefix(relative, ".."+string(filepath.Separator)) {
+		return "", fmt.Errorf("environment path escapes Codewise home")
+	}
+	return dir, nil
 }
 
 // EnvDir returns the full path to an environment directory.
@@ -94,6 +118,9 @@ func readYAML(path string, out interface{}) error {
 /////////////////////////////////////////////////////////
 
 func LoadEnv(name string) (*Env, error) {
+	if err := ValidateName(name); err != nil {
+		return nil, err
+	}
 
 	if !envExists(name) {
 		return nil, fmt.Errorf("environment %q does not exist", name)

@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -32,12 +31,8 @@ A powerful platform-style CLI for DevOps workflows including:
 }
 
 // Execute runs the root command.
-func Execute() {
-
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println("error:", err)
-		os.Exit(1)
-	}
+func Execute() error {
+	return rootCmd.Execute()
 }
 
 // PrintBanner prints the CLI banner.

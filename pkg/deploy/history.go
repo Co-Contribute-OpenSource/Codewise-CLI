@@ -2,7 +2,6 @@ package deploy
 
 import (
 	"fmt"
-	"os/exec"
 )
 
 func History(envName string) error {
@@ -15,6 +14,10 @@ func History(envName string) error {
 	ns := environment.K8s.Namespace
 	ctx := environment.K8s.Context
 	release := environment.Helm.Release
+	strategy := ResolveStrategy(environment)
+	if strategy != StrategyHelm {
+		return fmt.Errorf("deployment history is only available for Helm environments (resolved strategy: %s)", strategy)
+	}
 
 	fmt.Println("Release History")
 	fmt.Println("----------------")
@@ -34,10 +37,9 @@ func History(envName string) error {
 		args = append(args, "--kube-context", ctx)
 	}
 
-	cmd := exec.Command("helm", args...)
-	out, err := cmd.CombinedOutput()
+	out, err := commandRunner.CombinedOutput("helm", args...)
 	if err != nil {
-		return fmt.Errorf("failed to fetch history")
+		return outputError("failed to fetch Helm release history", out, err)
 	}
 
 	fmt.Println(string(out))

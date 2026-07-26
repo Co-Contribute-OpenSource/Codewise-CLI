@@ -7,10 +7,9 @@ import (
 	"path/filepath"
 )
 
-func ScaffoldProject(projectName string, withDocker, withDeployment bool) {
+func ScaffoldProject(projectName string, withDocker, withDeployment bool) error {
 	if projectName == "" {
-		fmt.Println("❌ Please provide a project name using --project")
-		os.Exit(1)
+		return fmt.Errorf("please provide a project name using --project")
 	}
 
 	basePath := filepath.Join(".", projectName)
@@ -23,8 +22,7 @@ func ScaffoldProject(projectName string, withDocker, withDeployment bool) {
 	for _, dir := range dirs {
 		fullPath := filepath.Join(basePath, dir)
 		if err := os.MkdirAll(fullPath, 0755); err != nil {
-			fmt.Printf("❌ Failed to create %s: %v\n", fullPath, err)
-			os.Exit(1)
+			return fmt.Errorf("create %s: %w", fullPath, err)
 		}
 	}
 
@@ -38,8 +36,7 @@ CMD ["./main"]`
 
 		err := os.WriteFile(filepath.Join(basePath, "Dockerfile"), []byte(dockerfile), 0644)
 		if err != nil {
-			fmt.Println("❌ Failed to write Dockerfile:", err)
-			os.Exit(1)
+			return fmt.Errorf("write Dockerfile: %w", err)
 		}
 		fmt.Println("📦 Dockerfile created.")
 	}
@@ -47,7 +44,9 @@ CMD ["./main"]`
 	// Kubernetes deployment.yaml
 	if withDeployment {
 		k8sPath := filepath.Join(basePath, "k8s")
-		_ = os.MkdirAll(k8sPath, 0755)
+		if err := os.MkdirAll(k8sPath, 0755); err != nil {
+			return fmt.Errorf("create Kubernetes directory: %w", err)
+		}
 
 		deployment := `apiVersion: apps/v1
 kind: Deployment
@@ -71,23 +70,24 @@ spec:
 
 		err := os.WriteFile(filepath.Join(k8sPath, "deployment.yaml"), []byte(deployment), 0644)
 		if err != nil {
-			fmt.Println("❌ Failed to write deployment.yaml:", err)
-			os.Exit(1)
+			return fmt.Errorf("write deployment.yaml: %w", err)
 		}
 		fmt.Println("📄 k8s/deployment.yaml created.")
 	}
 
-	setupGitRepo(basePath)
+	if err := setupGitRepo(basePath); err != nil {
+		return err
+	}
 
 	fmt.Println("✅ Project scaffolded successfully.")
+	return nil
 }
 
-func setupGitRepo(basePath string) {
+func setupGitRepo(basePath string) error {
 	cmd := exec.Command("git", "init")
 	cmd.Dir = basePath
 	if err := cmd.Run(); err != nil {
-		fmt.Println("❌ Failed to initialize Git:", err)
-		return
+		return fmt.Errorf("initialize Git repository: %w", err)
 	}
 
 	gitignore := `# Binaries
@@ -116,9 +116,9 @@ bin/
 
 	err := os.WriteFile(filepath.Join(basePath, ".gitignore"), []byte(gitignore), 0644)
 	if err != nil {
-		fmt.Println("❌ Failed to write .gitignore:", err)
-		return
+		return fmt.Errorf("write .gitignore: %w", err)
 	}
 
 	fmt.Println("🔧 Git repo initialized with .gitignore")
+	return nil
 }

@@ -1,7 +1,15 @@
 package main
 
-import "github.com/aryansharma9917/codewise-cli/cmd"
+import (
+	"fmt"
+	"os"
+
+	"github.com/aryansharma9917/codewise-cli/cmd"
+)
 
 func main() {
-	cmd.Execute()
+	if err := cmd.Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, "error:", err)
+		os.Exit(1)
+	}
 }

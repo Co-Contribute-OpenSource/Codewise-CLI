@@ -101,8 +101,9 @@ This table is the exhaustive callable command surface. `--help` is available on 
 | `codewise deploy history` | `--env <name>` (required) |
 | `codewise deploy rollback` | `--env <name>` (required), `--revision <number>` |
 | `codewise encode` | `-i`, `--input <file>` (required); `-o`, `--output <file>` (required); `--json-to-yaml`; `--env-to-json`; `--base64`; `--decode`; `-f`, `--force` |
+| `codewise encode kvtj` | `-f`, `--file <file>` (required); `-o`, `--output <file>`; `-p`, `--print` |
 | `codewise init` | `-p`, `--project <name>`; `--with-docker`; `--with-deployment` |
 | `codewise template github-action` | `-o`, `--output <file>` (required); `--app-name <name>`; `--repo <url>` |
 | `codewise template argo-app` | `-o`, `--output <file>` (required); `--app-name <name>`; `--repo <url>` |
 
-The parent commands—`config`, `deploy`, `docker`, `env`, `helm`, `k8s`, `template`, and `completion`—display their available subcommands when invoked with `--help`.
+The parent commands—`config`, `deploy`, `docker`, `encode`, `env`, `helm`, `k8s`, `template`, and `completion`—display their available subcommands when invoked with `--help`.

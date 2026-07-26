@@ -58,8 +58,6 @@ func init() {
 		cmd.Flags().StringVarP(&outputPath, "output", "o", "", "Output file path (required)")
 		cmd.Flags().StringVar(&appName, "app-name", "myapp", "Application name for template")
 		cmd.Flags().StringVar(&repoURL, "repo", "https://github.com/example/repo", "Repository URL for template")
-		if err := cmd.MarkFlagRequired("output"); err != nil {
-			panic(err)
-		}
+		_ = cmd.MarkFlagRequired("output")
 	}
 }

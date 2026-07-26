@@ -9,8 +9,9 @@ import (
 )
 
 const (
-	ConfigDirName  = ".codewise"
-	ConfigFileName = "config.yaml"
+	ConfigDirName   = ".codewise"
+	ConfigFileName  = "config.yaml"
+	codewiseHomeEnv = "CODEWISE_HOME"
 )
 
 type Config struct {
@@ -43,16 +44,25 @@ defaults:
   branch: main
 `)
 
-func InitConfig() (string, error) {
+func configDir() (string, error) {
+	if home := os.Getenv(codewiseHomeEnv); home != "" {
+		return home, nil
+	}
 	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", fmt.Errorf("failed to resolve user home: %w", err)
+	}
+	return filepath.Join(home, ConfigDirName), nil
+}
+
+func InitConfig() (string, error) {
+	dir, err := configDir()
 	if err != nil {
 		return "", err
 	}
+	configPath := filepath.Join(dir, ConfigFileName)
 
-	configDir := filepath.Join(home, ConfigDirName)
-	configPath := filepath.Join(configDir, ConfigFileName)
-
-	if err := os.MkdirAll(configDir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0755); err != nil {
 		return "", err
 	}
 
@@ -68,12 +78,12 @@ func InitConfig() (string, error) {
 }
 
 func ReadConfig() (*Config, error) {
-	home, err := os.UserHomeDir()
+	dir, err := configDir()
 	if err != nil {
 		return nil, err
 	}
 
-	configPath := filepath.Join(home, ConfigDirName, ConfigFileName)
+	configPath := filepath.Join(dir, ConfigFileName)
 
 	data, err := os.ReadFile(configPath)
 	if err != nil {
