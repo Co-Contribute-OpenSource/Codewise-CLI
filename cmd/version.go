@@ -9,12 +9,15 @@ import (
 
 var (
 	checkLatest bool
+	// These values are replaced by GoReleaser using -ldflags.
+	Version = "dev"
+	Commit  = "none"
+	Date    = "unknown"
 )
 
 const (
-	CLI_VERSION = "1.8.0"
-	OWNER       = "AryanSharma9917"
-	REPO        = "Codewise-CLI"
+	OWNER = "AryanSharma9917"
+	REPO  = "Codewise-CLI"
 )
 
 // versionCmd represents the version command
@@ -26,7 +29,7 @@ var versionCmd = &cobra.Command{
 		if checkLatest {
 			checkForNewVersion()
 		} else {
-			fmt.Println(CLI_VERSION)
+			fmt.Printf("codewise %s\ncommit: %s\nbuilt: %s\n", Version, Commit, Date)
 		}
 
 	},
@@ -40,7 +43,12 @@ func checkForNewVersion() {
 		FixVersionStrFunc: latest.DeleteFrontV(),
 	}
 
-	res, err := latest.Check(githubTag, CLI_VERSION)
+	if Version == "dev" {
+		fmt.Println("Development build; update checks require a released version")
+		return
+	}
+
+	res, err := latest.Check(githubTag, Version)
 
 	if err != nil {
 		fmt.Println("Unable to check for latest version. Check your internet connection")

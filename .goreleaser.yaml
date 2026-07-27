@@ -22,7 +22,11 @@ builds:
     flags:
       - -trimpath
     ldflags:
-      - -s -w
+      - >-
+        -s -w
+        -X github.com/aryansharma9917/codewise-cli/cmd.Version={{ .Version }}
+        -X github.com/aryansharma9917/codewise-cli/cmd.Commit={{ .Commit }}
+        -X github.com/aryansharma9917/codewise-cli/cmd.Date={{ .Date }}
 
 archives:
   - ids:

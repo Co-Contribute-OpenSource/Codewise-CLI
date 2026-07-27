@@ -21,9 +21,9 @@ func TestVersionCommandIsRegistered(t *testing.T) {
 	}
 }
 
-func TestRootVersionMatchesConstant(t *testing.T) {
-	if rootCmd.Version != CLI_VERSION {
-		t.Fatalf("expected root version %q to match CLI version %q", rootCmd.Version, CLI_VERSION)
+func TestRootVersionMatchesBuildVersion(t *testing.T) {
+	if rootCmd.Version != Version {
+		t.Fatalf("expected root version %q to match build version %q", rootCmd.Version, Version)
 	}
 }
 
