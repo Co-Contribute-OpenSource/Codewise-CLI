@@ -35,6 +35,20 @@ Codewise provides automation for:
 
 ## Installation
 
+Install the latest verified Linux or macOS release:
+
+```bash
+curl -fsSLO https://raw.githubusercontent.com/AryanSharma9917/Codewise-CLI/main/install.sh
+bash install.sh
+```
+
+The installer validates the archive against the published SHA-256 checksum and
+uses Cosign verification when Cosign is available. Review the script before
+running it. See the [installation guide](https://aryansharma9917.github.io/Codewise-CLI/guide/installation)
+for version pinning and Windows instructions.
+
+Or build from source:
+
 Clone the repository:
 
 ```bash
