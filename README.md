@@ -27,6 +27,9 @@ Codewise provides automation for:
 - Kubernetes manifest generation and deployment
 - Helm chart scaffolding
 - Namespace, context, and dry-run support for Kubernetes operations
+- Local tool and Kubernetes connectivity diagnostics with `codewise doctor`
+- Explainable deployment selection and strategy-specific recovery guidance
+- Explicit Helm, kubectl, and GitOps environment strategies
 - Configuration bootstrapping for defaults (image, namespace, repo)
 - File encoding utilities (Base64, YAML ⇄ JSON, ENV parsing)
 - Templating & project bootstrap helpers
@@ -244,11 +247,16 @@ Additional auto-detected conversions are supported from file extensions:
 
 ```bash
 codewise config init
+codewise doctor --cluster
 codewise docker init
 codewise docker build
 codewise k8s init
-codewise k8s apply --namespace dev --context minikube
 codewise helm init
+codewise env create dev
+codewise env strategy dev helm
+codewise deploy explain --env dev
+codewise deploy run --env dev --dry-run
+codewise deploy run --env dev
 ```
 
 ---

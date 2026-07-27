@@ -17,6 +17,7 @@ codewise <command> [subcommand] [flags]
 | `template` | Generate GitHub Actions and Argo CD templates |
 | `version` | Print or check the CLI version |
 | `completion` | Generate shell completion scripts |
+| `doctor` | Diagnose installed tools and optional cluster connectivity |
 | `help` | Show help for Codewise or a specific command |
 
 Run help at any level:
@@ -43,6 +44,9 @@ codewise completion bash
 codewise completion zsh
 codewise completion fish
 codewise completion powershell
+codewise doctor
+codewise doctor --cluster --context kind-codewise
+codewise doctor --require docker,kubectl,helm
 ```
 
 | Command | Flags |
@@ -82,8 +86,11 @@ This table is the exhaustive callable command surface. `--help` is available on 
 | `codewise completion zsh` | `--no-descriptions` |
 | `codewise config init` | None |
 | `codewise config view` | None |
+| `codewise doctor` | `--cluster`; `--context <name>`; `--require <comma-separated-tools>` |
 | `codewise env create <name>` | `-i`, `--interactive` |
 | `codewise env list` | None |
+| `codewise env show <name>` | `--format yaml|json` |
+| `codewise env strategy <name> <strategy>` | Strategy is `auto`, `helm`, `kubectl`, or `gitops` |
 | `codewise env delete <name>` | `--yes` |
 | `codewise docker init` | None |
 | `codewise docker validate` | None |
@@ -94,6 +101,7 @@ This table is the exhaustive callable command surface. `--help` is available on 
 | `codewise k8s delete` | `--namespace <name>`, `--context <name>`, `--dry-run` |
 | `codewise helm init` | `--app <name>`, `--image <image>` |
 | `codewise deploy plan` | `--env <name>` (required) |
+| `codewise deploy explain` | `--env <name>` (required) |
 | `codewise deploy run` | `--env <name>` (required), `--dry-run` |
 | `codewise deploy preview` | `--pr <number>` or `--image <image>` (at least one required); `--keep` |
 | `codewise deploy status` | `--env <name>` (required) |

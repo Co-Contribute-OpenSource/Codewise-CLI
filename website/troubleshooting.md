@@ -4,10 +4,18 @@
 
 ```bash
 codewise version
+codewise doctor
+codewise doctor --cluster
 docker --version
 kubectl version --client
 helm version
 kubectl config current-context
+```
+
+Use `--require` in CI when missing tools must fail the job:
+
+```bash
+codewise doctor --cluster --require docker,kubectl,helm
 ```
 
 ## `Dockerfile already exists`
@@ -42,6 +50,13 @@ kubectl cluster-info
 ```
 
 Pass a specific context with `--context` where supported, or update the environment's `k8s.yaml`.
+
+Ask Codewise to explain the selected strategy and recovery path:
+
+```bash
+codewise env show staging
+codewise deploy explain --env staging
+```
 
 ## Environment not found
 

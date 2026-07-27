@@ -10,6 +10,16 @@ codewise deploy plan --env staging
 
 Displays the selected strategy and command. GitOps plans include the generated Argo CD Application manifest.
 
+## `deploy explain`
+
+```bash
+codewise deploy explain --env staging
+```
+
+Explains why the strategy was selected, required tools and access, the exact
+external command, each execution phase, and the strategy-specific recovery
+procedure. It does not contact the cluster.
+
 ## `deploy run`
 
 ```bash
@@ -41,7 +51,11 @@ codewise deploy rollback --env staging --revision 2
 | Flag | Description |
 | --- | --- |
 | `--env` | Environment profile; required |
-| `--revision` | Helm revision; `0` selects the previous revision |
+| `--revision` | Positive Helm revision to restore; required |
+
+History and automatic rollback are supported only for Helm environments.
+kubectl environments must reapply known-good manifests; GitOps environments
+must revert desired state in Git.
 
 ## Preview environments
 
