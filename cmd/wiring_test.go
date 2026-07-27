@@ -68,3 +68,10 @@ func TestEnvironmentControlCommandsAreRegistered(t *testing.T) {
 		}
 	}
 }
+
+func TestDeployExplainCommandIsRegistered(t *testing.T) {
+	deploy := findCommandByName(rootCmd, "deploy")
+	if got := findCommandByName(deploy, "explain"); got == nil {
+		t.Fatal("expected deploy explain command to be registered")
+	}
+}

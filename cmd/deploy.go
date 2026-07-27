@@ -37,15 +37,28 @@ var deployPlanCmd = &cobra.Command{
 	},
 }
 
+var deployExplainCmd = &cobra.Command{
+	Use:   "explain",
+	Short: "Explain strategy selection, execution, and recovery",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if deployEnv == "" {
+			return ExitError("please provide --env")
+		}
+		return deploy.Explain(deployEnv)
+	},
+}
+
 func init() {
 
 	deployRunCmd.Flags().StringVar(&deployEnv, "env", "", "Environment to deploy")
 	deployRunCmd.Flags().BoolVar(&dryRun, "dry-run", false, "Preview deployment")
 
 	deployPlanCmd.Flags().StringVar(&deployEnv, "env", "", "Environment to plan")
+	deployExplainCmd.Flags().StringVar(&deployEnv, "env", "", "Environment to explain")
 
 	deployCmd.AddCommand(deployRunCmd)
 	deployCmd.AddCommand(deployPlanCmd)
+	deployCmd.AddCommand(deployExplainCmd)
 
 	rootCmd.AddCommand(deployCmd)
 }

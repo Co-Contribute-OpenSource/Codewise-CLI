@@ -31,8 +31,12 @@ func ResolveStrategy(e *env.Env) Strategy {
 		return StrategyGitOps
 	}
 
-	// check if helm chart exists
-	if _, err := os.Stat(filepath.Join(".", "helm", "chart")); err == nil {
+	// check if the configured Helm chart exists
+	chart := e.Helm.Chart
+	if chart == "" {
+		chart = filepath.Join(".", "helm", "chart")
+	}
+	if _, err := os.Stat(chart); err == nil {
 		return StrategyHelm
 	}
 
