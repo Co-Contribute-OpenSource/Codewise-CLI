@@ -53,3 +53,9 @@ func TestDockerPushTagFlagIsRegistered(t *testing.T) {
 		t.Fatalf("expected docker push to register the --tag flag")
 	}
 }
+
+func TestDoctorCommandIsRegistered(t *testing.T) {
+	if got := findCommandByName(rootCmd, "doctor"); got == nil {
+		t.Fatal("expected doctor command to be registered")
+	}
+}
