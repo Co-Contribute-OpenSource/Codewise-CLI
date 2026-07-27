@@ -134,3 +134,105 @@ func TestHelmStatusUsesHelmAndKubectl(t *testing.T) {
 		t.Fatalf("calls = %#v", fake.calls)
 	}
 }
+
+func TestDryRunForEveryStrategyDoesNotExecuteCommands(t *testing.T) {
+	for _, strategy := range []Strategy{StrategyKubectl, StrategyHelm, StrategyGitOps} {
+		t.Run(string(strategy), func(t *testing.T) {
+			fake := &fakeRunner{}
+			useFakeRunner(t, fake)
+			createTestEnvironment(t, "dry-"+string(strategy), strategy)
+
+			if err := Run("dry-"+string(strategy), true); err != nil {
+				t.Fatal(err)
+			}
+			if len(fake.calls) != 0 {
+				t.Fatalf("dry run executed commands: %#v", fake.calls)
+			}
+		})
+	}
+}
+
+func TestRunExecutesPreflightDeployAndRollout(t *testing.T) {
+	for _, strategy := range []Strategy{StrategyKubectl, StrategyHelm, StrategyGitOps} {
+		t.Run(string(strategy), func(t *testing.T) {
+			fake := &fakeRunner{combinedOutput: []byte("namespace exists")}
+			useFakeRunner(t, fake)
+			createTestEnvironment(t, "run-"+string(strategy), strategy)
+
+			if err := Run("run-"+string(strategy), false); err != nil {
+				t.Fatal(err)
+			}
+			if len(fake.calls) < 4 {
+				t.Fatalf("expected preflight, namespace, deploy and rollout calls: %#v", fake.calls)
+			}
+		})
+	}
+}
+
+func TestPreflightReportsRequiredToolFailure(t *testing.T) {
+	fake := &fakeRunner{err: errors.New("executable not found")}
+	useFakeRunner(t, fake)
+
+	err := Preflight(&env.Env{K8s: env.K8sConfig{Strategy: "helm"}})
+	if err == nil || !strings.Contains(err.Error(), "helm not available") {
+		t.Fatalf("Preflight error = %v", err)
+	}
+}
+
+func TestMonitorRolloutWaitsForEveryDeployment(t *testing.T) {
+	fake := &fakeRunner{output: []byte("deployment.apps/api\ndeployment.apps/worker\n")}
+	useFakeRunner(t, fake)
+
+	err := MonitorRollout(&env.Env{K8s: env.K8sConfig{Namespace: "staging"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(fake.calls) != 3 {
+		t.Fatalf("expected list and two rollout calls: %#v", fake.calls)
+	}
+}
+
+func TestDiagnosticsDescribeEveryPod(t *testing.T) {
+	fake := &fakeRunner{
+		output:         []byte("pod/api\npod/worker\n"),
+		combinedOutput: []byte("pod diagnostics"),
+	}
+	useFakeRunner(t, fake)
+
+	FetchDiagnostics(&env.Env{K8s: env.K8sConfig{Namespace: "staging"}})
+	if len(fake.calls) != 3 {
+		t.Fatalf("expected list and two describe calls: %#v", fake.calls)
+	}
+}
+
+func TestHelmHistoryAndRollbackExecuteSuccessfully(t *testing.T) {
+	fake := &fakeRunner{combinedOutput: []byte("REVISION STATUS")}
+	useFakeRunner(t, fake)
+	createTestEnvironment(t, "helm-ops", StrategyHelm)
+
+	if err := History("helm-ops"); err != nil {
+		t.Fatal(err)
+	}
+	if err := Rollback("helm-ops", 1); err != nil {
+		t.Fatal(err)
+	}
+	if len(fake.calls) < 3 {
+		t.Fatalf("expected history, rollback and rollout lookup: %#v", fake.calls)
+	}
+}
+
+func TestPlanAndExplainRenderWithoutClusterAccess(t *testing.T) {
+	fake := &fakeRunner{}
+	useFakeRunner(t, fake)
+	createTestEnvironment(t, "planning", StrategyGitOps)
+
+	if err := Plan("planning"); err != nil {
+		t.Fatal(err)
+	}
+	if err := Explain("planning"); err != nil {
+		t.Fatal(err)
+	}
+	if len(fake.calls) != 0 {
+		t.Fatalf("planning contacted external tools: %#v", fake.calls)
+	}
+}

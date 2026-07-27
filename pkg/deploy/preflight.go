@@ -25,19 +25,16 @@ func Preflight(environment *env.Env) error {
 	// Check binary availability
 	////////////////////////////////////////////////////
 
-	switch strategy {
-
-	case StrategyHelm:
-
+	if strategy == StrategyHelm {
 		if err := runCheck("helm", "version"); err != nil {
-			return fmt.Errorf("helm not available or not functioning")
+			return fmt.Errorf("helm not available or not functioning: %w", err)
 		}
+	}
 
-	case StrategyKubectl:
-
-		if err := runCheck("kubectl", "version", "--client"); err != nil {
-			return fmt.Errorf("kubectl not available or not functioning")
-		}
+	// Every strategy uses kubectl for connectivity, namespace management,
+	// rollout monitoring, or applying the Argo CD Application.
+	if err := runCheck("kubectl", "version", "--client"); err != nil {
+		return fmt.Errorf("kubectl not available or not functioning: %w", err)
 	}
 
 	////////////////////////////////////////////////////
@@ -51,7 +48,7 @@ func Preflight(environment *env.Env) error {
 	}
 
 	if err := runCheck("kubectl", args...); err != nil {
-		return fmt.Errorf("cannot reach kubernetes cluster. check kube-context")
+		return fmt.Errorf("cannot reach kubernetes cluster; check kube-context: %w", err)
 	}
 
 	fmt.Println("Cluster reachable")
