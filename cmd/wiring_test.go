@@ -59,3 +59,12 @@ func TestDoctorCommandIsRegistered(t *testing.T) {
 		t.Fatal("expected doctor command to be registered")
 	}
 }
+
+func TestEnvironmentControlCommandsAreRegistered(t *testing.T) {
+	envCommand := findCommandByName(rootCmd, "env")
+	for _, name := range []string{"show", "strategy"} {
+		if got := findCommandByName(envCommand, name); got == nil {
+			t.Fatalf("expected env %s command to be registered", name)
+		}
+	}
+}

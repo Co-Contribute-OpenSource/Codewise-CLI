@@ -1,28 +1,28 @@
 package env
 
 type K8sConfig struct {
-	Namespace string `yaml:"namespace"`
-	Context   string `yaml:"context"`
-	Strategy  string `yaml:"strategy,omitempty"`
+	Namespace string `json:"namespace" yaml:"namespace"`
+	Context   string `json:"context" yaml:"context"`
+	Strategy  string `json:"strategy,omitempty" yaml:"strategy,omitempty"`
 }
 
 type HelmConfig struct {
-	Release string `yaml:"release"`
-	Chart   string `yaml:"chart"`
-	Values  string `yaml:"values"`
+	Release string `json:"release" yaml:"release"`
+	Chart   string `json:"chart" yaml:"chart"`
+	Values  string `json:"values" yaml:"values"`
 }
 
 type GitOpsConfig struct {
-	Repo   string `yaml:"repo"`
-	Path   string `yaml:"path"`
-	Branch string `yaml:"branch"`
+	Repo   string `json:"repo" yaml:"repo"`
+	Path   string `json:"path" yaml:"path"`
+	Branch string `json:"branch" yaml:"branch"`
 }
 
 type ValuesConfig struct {
 	Image struct {
-		Repository string `yaml:"repository"`
-		Tag        string `yaml:"tag"`
-	} `yaml:"image"`
+		Repository string `json:"repository" yaml:"repository"`
+		Tag        string `json:"tag" yaml:"tag"`
+	} `json:"image" yaml:"image"`
 }
 
 type Env struct {
